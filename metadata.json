@@ -1,0 +1,5 @@
+{
+  "name": "Aura AI Companion",
+  "description": "A state-of-the-art, low-latency AI companion with real-time voice, text, and vision capabilities.",
+  "requestFramePermissions": ["camera", "microphone"]
+}
