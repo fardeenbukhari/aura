@@ -58,9 +58,9 @@ export function useLiveAPI() {
     source.start();
   }, []);
 
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (customApiKey?: string) => {
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
+      const apiKey = customApiKey || process.env.GEMINI_API_KEY;
       if (!apiKey) {
         console.error("GEMINI_API_KEY is missing!");
         return;
@@ -198,9 +198,22 @@ export function useLiveAPI() {
     }
   }, [isConnected]);
 
+  const sendTextMessage = useCallback((text: string) => {
+    if (sessionRef.current && isConnected) {
+      sessionRef.current.sendRealtimeInput({
+        text
+      });
+      setTranscript(prev => [...prev, { role: 'user', text, timestamp: Date.now() }]);
+    }
+  }, [isConnected]);
+
   const disconnect = useCallback(() => {
     if (sessionRef.current) {
-      sessionRef.current.close();
+      try {
+        sessionRef.current.close();
+      } catch (e) {
+        console.error("Error closing session:", e);
+      }
       sessionRef.current = null;
     }
     stopAudio();
@@ -217,6 +230,7 @@ export function useLiveAPI() {
     disconnect,
     startRecording,
     stopRecording: stopAudio,
-    sendVideoFrame
+    sendVideoFrame,
+    sendTextMessage
   };
 }
